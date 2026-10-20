@@ -4,6 +4,8 @@ A story-led masterclass for people who have heard about Claude and want to under
 
 Run `node cost-lab serve` and open the printed localhost URL. The visual makes no model calls and requires no account setup.
 
+To present a real Claude Code session, follow [the two-terminal live exercise](LIVE.md). It includes a no-model rehearsal and a local Requests → Tools → Result viewer.
+
 Start with [the business exercise](business-practice.md). Choose a revenue or cost hypothesis, predict the outcome, and compare the result with its baseline. Then find your industry in the optional 11-sector, 74-industry explorer. Related Databricks sources and authored adaptations are labeled separately.
 
 Keep the offer, business judgment and release decision human. Ask your sidekick to make a small analysis or prototype using the supplied synthetic pilot and brief.

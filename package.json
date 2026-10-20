@@ -9,6 +9,6 @@
   "scripts": {
     "start": "node go",
     "setup": "node go --doctor",
-    "test": "node --test .course/test/workshop.test.cjs .course/cost-lab/engine.test.cjs"
+    "test": "node --test .course/test/workshop.test.cjs .course/cost-lab/engine.test.cjs .course/cost-lab/live.test.cjs"
   }
 }
