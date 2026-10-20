@@ -23,7 +23,7 @@ function actions(w,s,agentLabel){const ids=w.route(s.path).labs,index=ids.indexO
 function createTerminal({input=process.stdin,output=process.stdout,plain=false}={}){
  const rich=!plain&&input.isTTY&&output.isTTY&&process.env.TERM!=='dumb';const color=rich&&!('NO_COLOR'in process.env);const accent=s=>color?'\x1b[36m'+s+'\x1b[0m':s;const bold=s=>color?'\x1b[1m'+s+'\x1b[0m':s;const dim=s=>color?'\x1b[2m'+s+'\x1b[0m':s;let rl,active=false,pending=null,closed=false,previous=[],geometry='',activeKey=null,keyQueue=[],pasting=false,pasteText='';const positions=new Map();
  const size=()=>({width:Math.max(24,Math.min(100,(output.columns||80)-4)),height:Math.max(8,(output.rows||24)-4)});
- function enter(){if(!rich||active)return;active=true;previous=[];geometry='';readline.emitKeypressEvents(input);input.setRawMode(true);input.on('keypress',dispatch);input.resume();output.write('\x1b[?1049h\x1b[?25l\x1b[?2004h');}
+ function enter(){if(!rich||active)return;active=true;previous=[];geometry='';readline.emitKeypressEvents(input,{escapeCodeTimeout:25});input.setRawMode(true);input.on('keypress',dispatch);input.resume();output.write('\x1b[?1049h\x1b[?25l\x1b[?2004h');}
  function leave(){if(!active)return;input.off('keypress',dispatch);keyQueue=[];pasting=false;pasteText='';try{input.setRawMode(false)}catch{}output.write('\x1b[?2004l\x1b[?2026l\x1b[0m\x1b[?25h\x1b[?1049l');input.pause();active=false;}
  function frame(lines){
   if(!rich)return;

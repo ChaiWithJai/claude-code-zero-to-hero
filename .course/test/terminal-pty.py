@@ -66,7 +66,7 @@ results=[]
 t=Terminal();t.expect('How are you learning?');t.send('\x1b[B\r');t.expect('Choose an exercise');t.send('\x1b[F');t.expect('Leave with an honest');assert not (root/'.local/progress.json').exists(),'Preview changed course progress';t.send('\r');screen=t.expect('Finish this path');assert 'Next lab' not in screen;assert 'Try it' in screen
 # Scroll without clearing the screen, then visit help and return to the same place.
 old=len(t.raw);t.send(' ');screen=t.expect('Keep');assert '\x1b[2J' not in t.raw[old:];assert '\x1b[?2026h' in t.raw[old:];line=re.search(r'Lines [^\n]+',screen)[0]
-t.send('?');t.expect('More options');t.choose(1);t.expect('A hint');t.send('\x1b');screen=t.expect('Finish this path');assert line in screen,'Reading position lost after hint'
+t.send('?');t.expect('More options');t.choose(1);t.expect('A hint');started=time.monotonic();t.send('\x1b');screen=t.expect('Finish this path');assert time.monotonic()-started<.25,'Escape return exceeded 250ms';assert line in screen,'Reading position lost after hint'
 t.send('n');t.expect('Save my place and exit');t.choose(2);t.expect('Finish this path');t.send('q');t.close();results.append('Signature final exercise: preview without mutation, task visible on entry, incremental synchronized rendering, hint/return preserves position, finish/stay and clean quit')
 # Default restart resumes directly, without a second Continue/Read menu.
 t=Terminal();t.expect('Try it');assert 'Welcome back' not in t.read();t.send('q');t.close()
