@@ -1,0 +1,7 @@
+FICTIONAL TRAINING DATA
+SOURCE DESK-C
+Option: Birch
+Price USD: 280
+Width cm: 95
+Warranty years: 2
+Delivery days: 14

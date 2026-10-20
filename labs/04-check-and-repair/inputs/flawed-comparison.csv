@@ -1,0 +1,4 @@
+option,price_usd,width_cm,warranty_years,delivery_days,source_id,meets_width_limit,unknowns
+Cedar,180,100,1,3,DESK-A,yes,none
+Harbor,240,120,3,7,DESK-B,yes,none
+Birch,280,95,2,14,DESK-C,yes,none

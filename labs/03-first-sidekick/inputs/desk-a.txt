@@ -1,0 +1,7 @@
+FICTIONAL TRAINING DATA
+SOURCE DESK-A
+Option: Cedar
+Price USD: 180
+Width cm: 100
+Warranty years: 1
+Delivery days: not provided

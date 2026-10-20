@@ -1,0 +1,12 @@
+# Your work and progress stay on your own computer.
+/my-work/
+/.local/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+node_modules/
+.DS_Store
+Thumbs.db
+*.log

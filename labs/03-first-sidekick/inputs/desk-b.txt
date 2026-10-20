@@ -1,0 +1,7 @@
+FICTIONAL TRAINING DATA
+SOURCE DESK-B
+Option: Harbor
+Price USD: 240
+Width cm: 120
+Warranty years: 3
+Delivery days: 7

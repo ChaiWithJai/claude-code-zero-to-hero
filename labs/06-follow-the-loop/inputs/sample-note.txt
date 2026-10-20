@@ -1,0 +1,2 @@
+FICTIONAL PRACTICE NOTE
+This is a small place to notice an input, an action, and a result. Sources stay unchanged. New work goes into outputs/.

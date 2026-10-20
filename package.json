@@ -1,0 +1,12 @@
+{
+  "name": "claude-code-zero-to-hero",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Choose a wish. Build your understanding. Practice with your sidekick.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node go",
+    "setup": "node go --doctor",
+    "test": "node --test .course/test/workshop.test.cjs"
+  }
+}

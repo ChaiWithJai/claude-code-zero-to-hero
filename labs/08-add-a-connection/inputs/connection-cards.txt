@@ -1,0 +1,7 @@
+PRACTICE CONNECTION CARDS — PLANNING ONLY
+Local file: produce and inspect a CSV or text file without a service connection.
+Browser: acts in a browser session; identify exactly what it may change and the approved account context.
+Calendar/Mail: distinguish preparing a draft or plan from sending or scheduling.
+Docs/Sheets/Slides: distinguish file generation/import from granting ongoing account access.
+Phone: optional remote route, requiring its own current setup and account checks.
+For each, record purpose / access / bounded test / fallback. No connection is required for this lab.
