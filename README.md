@@ -10,7 +10,9 @@ Open a terminal in this folder and run:
 node go
 ```
 
-Choose **Live workshop** or **Signature course**, then a lab. The launcher gives you one activity and a place for your work. Run it again to pick up where you left off.
+Choose **Live workshop** or **Signature course**, then an exercise. Use the arrow keys and Enter. The launcher keeps your current task and work folder visible. Full instructions open in a scrollable reader, and you return to the same exercise after working with Claude Code.
+
+Use `node go --plain` for numbered prompts without screen redraws. It also works with `--agent codex`. Run the launcher again to pick up where you left off.
 
 [Set up once](SETUP.md) if you need Node.js, Claude Code, or help opening this folder. No `npm install` is needed.
 

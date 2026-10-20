@@ -2,7 +2,7 @@
 
 ## Where is my work?
 
-After selecting an activity, the launcher prints its location under `my-work/`. Each lab, homework, and extension has its own folder. Existing files are kept when you return. Your place is saved locally; it is not a grade or a claim of completion.
+After selecting an activity, the launcher shows its location under `my-work/`. Each lab, homework, and extension has its own folder. Existing files are kept when you return. Your place is saved locally; it is not a grade or a claim of completion.
 
 The shell does not change folders when a menu finishes. Use the launcher to start Claude Code in the selected workspace, or open the printed folder yourself.
 
@@ -16,7 +16,7 @@ node go --path live --lab 03
 
 ## I want homework or an extension
 
-Choose it in the menu. You can also jump directly:
+Choose **More options → Homework or extension**. You can also jump directly:
 
 ```sh
 node go --path signature --lab 03 --part homework

@@ -1,0 +1,6 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {plainText,wrap,actions}=require('../terminal.cjs');
+test('readable exercise text preserves prompt code and link destinations without terminal control sequences',()=>{const text=plainText('# Task\n\n```text\nRead inputs/.\n```\n[Reading](READING.md)\n\x1b[2J');assert.match(text,/Read inputs\//);assert.match(text,/Reading \(READING.md\)/);assert.doesNotMatch(text,/[#`\x1b]/);});
+test('long words and paths wrap without dropping content',()=>{const input='a'.repeat(85);assert.equal(wrap(input,32).join(''),input);assert.ok(wrap(input,32).every(s=>s.length<=32));});
+test('last lab replaces next with a finish action on both course paths',()=>{const {createWorkshop}=require('../workshop.cjs');const path=require('node:path'),w=createWorkshop(path.resolve(__dirname,'../..'));for(const key of ['live','signature']){const ids=w.route(key).labs;const first=actions(w,{path:key,lab:ids[0]},'Claude Code'),last=actions(w,{path:key,lab:ids.at(-1)},'Claude Code');assert.equal(first.length,5);assert.ok(first.some(a=>a.value==='next'));assert.ok(!last.some(a=>a.value==='next'));assert.ok(last.some(a=>a.value==='finish'));assert.ok(!last.some(a=>['hint','example'].includes(a.value)));}});

@@ -36,7 +36,7 @@ node go
 
 Follow the current [official quickstart](https://code.claude.com/docs/en/quickstart) using approved access. Having used Claude chat does not by itself establish Claude Code access.
 
-The launcher offers **Start Claude Code in this workspace** after you choose a lab. It does not install the tool, connect accounts, or change permissions for you.
+The launcher offers **Work with Claude Code** after you choose a lab. It does not install the tool, connect accounts, or change permissions for you.
 
 ## If setup is blocked
 
@@ -55,3 +55,9 @@ node go --doctor
 Use `node go --agent codex` to use the same lab menu with Codex. For a direct jump: `node go --agent codex --lab 03 --start`. Include `--agent codex` when you return; the default remains Claude Code. Check installation with `node go --agent codex --doctor`.
 
 The launcher copies the lab coaching instructions into `AGENTS.md` for Codex and keeps any existing file. Review these instructions before starting. They guide the assistant; they do not restrict its operating-system permissions. Choose permissions in your agent and inspect its proposed actions. A version check only confirms the command runs; it does not verify sign-in or account access.
+
+## Terminal navigation
+
+Use ↑/↓ and Enter to choose. Esc returns from a secondary menu. In the reading view, use ↑/↓ or Space to scroll and Esc or q to return. Press q on a menu to quit. Ctrl+C exits and restores the terminal. Full instructions, hints and examples are read only when selected.
+
+Use `node go --plain` if screen redraws or color are unhelpful, including when using a screen reader. `NO_COLOR=1` suppresses color in the interactive view. Screen reader behavior varies by terminal; plain mode is available without alternate-screen controls.
