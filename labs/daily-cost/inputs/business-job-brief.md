@@ -1,7 +1,7 @@
-# My business hypothesis
+# A media catalogue opportunity
 
-I want more time for teaching and a testable way to reach people who would benefit from my workshop. Using only the synthetic pilot CSV, calculate the baseline and pilot conversion rates, the difference, incremental revenue at equal exposure, and contribution at the supplied margin. Keep total pilot sales distinct from incremental sales.
+All assets and figures are synthetic. No real client data or licensing permission is represented.
 
-Then show assumed recurring run cost: AI payment allowance $20/month, extra paid review $300/month, operations $80/month. One-time setup/evaluation allowance is $2,000. Keep one-time setup separate. List an acceptance check and the evidence needed before treating the hypothesized lift as real. Do not contact anyone or change prices or accounts.
+A fictional producer wants an upbeat 60-second audio bed. Search `media-catalogue.csv`, rank by format, mood and duration, classify rights status exactly as recorded, and generate a short opportunity brief with asset/source IDs. Never convert unknown or review-required rights into approval. M003 is the exact match in this exercise; M001 is a longer alternative requiring review. M004 is artwork, not audio. Keep final selection, rights verification, pricing and outreach with the human.
 
-The sidekick produces analysis and a prototype test plan. Jai keeps the offer, audience, promises and release judgment. Numbers are hypothetical, not observed results from Jai or Databricks.
+Then use `revenue-pilot.csv`: compare equal exposure of 1,000 qualified licensing inquiries at 2% baseline and 3% hypothetical pilot conversion. At $500 per extra deal and 60% contribution margin, calculate incremental revenue and contribution. Budget $20/month AI, $300 additional paid review and $80 operations; $2,000 one-time setup separately. State what comparison and quality checks would be needed before claiming actual lift. Do not contact anyone or change accounts.

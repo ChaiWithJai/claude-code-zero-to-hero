@@ -1,0 +1,5 @@
+asset_id,title,file_format,data_type,mood,duration_seconds,rights_status,source_id
+M001,City Lanterns,wav,audio,upbeat,120,review_required,SYN001
+M002,Quiet Orbit,mp3,audio,reflective,90,unknown,SYN002
+M003,Open Road,wav,audio,upbeat,60,exercise_cleared,SYN003
+M004,Open Road Artwork,png,image,upbeat,0,unknown,SYN004
