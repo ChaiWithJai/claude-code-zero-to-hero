@@ -58,6 +58,8 @@ The launcher copies the lab coaching instructions into `AGENTS.md` for Codex and
 
 ## Terminal navigation
 
-Use ↑/↓ and Enter to choose. Esc returns from a secondary menu. In the reading view, use ↑/↓ or Space to scroll and Esc or q to return. Press q on a menu to quit. Ctrl+C exits and restores the terminal. Full instructions, hints and examples are read only when selected.
+The launcher opens your saved exercise directly. Its instructions are already visible. Use ↑/↓ or Space to read. The controls stay at the bottom: Enter opens the agent, c checks your work, n continues, l previews exercises, ? opens help, and q quits.
 
-Use `node go --plain` if screen redraws or color are unhelpful, including when using a screen reader. `NO_COLOR=1` suppresses color in the interactive view. Screen reader behavior varies by terminal; plain mode is available without alternate-screen controls.
+The exercise picker lets you type a name and preview the task before opening it. Esc returns without changing your place. Returning from the agent, a hint or a check restores your reading position.
+
+Use `node go --plain` for numbered prompts without alternate-screen controls, including when using a screen reader. `NO_COLOR=1` suppresses color. Screen reader behavior varies by terminal. No additional packages or terminal app are required.

@@ -49,18 +49,20 @@ async function main(){
  if(!process.stdin.isTTY){header();console.log('Use an interactive terminal to choose a path, or jump directly:\n  node go --path live --lab 01\n  node go --list');return;}
  const ui=createTerminal({plain:opts.plain});let selection=initialSelection,pathKey=initialSelection?.path||opts.path,notice='',focus=0;
  const choosePath=()=>ui.menu('How are you learning?',[{label:'Live workshop',value:'live'},{label:'Signature course',value:'signature'}]);
- async function chooseLab(key){const ids=w.route(key).labs;return ui.menu('Choose an exercise',ids.map((id,i)=>({label:w.labById(id).title,value:id})),{context:[w.route(key).title]});}
+ async function chooseLab(key){const ids=w.route(key).labs;return ui.menu('Choose an exercise',ids.map((id,i)=>({label:w.labById(id).title,value:id})),{context:[w.route(key).title],filter:true,preview:id=>{const lab=w.labById(id);return overview(w,{lab:id,part:'lab'})+' — About '+lab.minutes+' minutes.';}});}
  try{
+  if(last&&!pathKey&&!selection&&ui.rich){pathKey=last.path;selection=prepare(last.lab,last.part,pathKey);}
   if(last&&!pathKey&&!selection){const answer=await ui.menu('Welcome back',[{label:'Continue '+w.labById(last.lab).title,value:'resume'},{label:'Browse the course',value:'browse'}],{context:[w.route(last.path).title+' · '+last.part],back:false});if(!answer)return;if(answer==='resume'){pathKey=last.path;selection=prepare(last.lab,last.part,pathKey);}}
   while(!selection&&!ui.closed){if(!pathKey)pathKey=await choosePath();if(!pathKey)return;const id=await chooseLab(pathKey);if(id)selection=prepare(id,'lab',pathKey);else pathKey=null;}
   while(selection&&!ui.closed){
    const ids=w.route(pathKey).labs,position=ids.indexOf(selection.lab);const context=[w.route(pathKey).title+' · Exercise '+(position+1)+' of '+ids.length+' · '+(selection.part==='lab'?'Core practice':selection.part),selection.labData.title,overview(w,selection),'Work: '+selection.relative];
-   const action=await ui.menu('What would you like to do?',actions(w,selection,agentLabel),{context,back:false,notice,selected:focus});notice='';if(!action)return;focus=actions(w,selection,agentLabel).findIndex(x=>x.value===action);
+   const action=ui.rich?await ui.exercise({id:selection.lab+':'+selection.part,title:selection.labData.title,pathLabel:w.route(pathKey).title,position:position+1,total:ids.length,part:selection.part==='lab'?'Core practice':selection.part,text:w.read(selection.lab,selection.part+'/INSTRUCTIONS.md'),agentLabel,workPath:selection.relative,notice,atEnd:position===ids.length-1,lessons:ids.map((id,i)=>({label:String(i+1).padStart(2,'0')+' '+(w.labById(id).navTitle||w.labById(id).title),current:id===selection.lab}))}):await ui.menu('What would you like to do?',actions(w,selection,agentLabel),{context,back:false,notice,selected:focus});notice='';if(!action)return;focus=actions(w,selection,agentLabel).findIndex(x=>x.value===action);
    if(action==='read'){await ui.read(selection.labData.title,w.read(selection.lab,selection.part+'/INSTRUCTIONS.md'));focus=1;}
    else if(action==='agent'){notice=await ui.suspend(()=>w.launchAgent(selection.dir,agent));focus=2;}
    else if(action==='check'){const r=w.check(selection.lab,selection.part);await ui.read('Review your work',r.messages.join('\n\n'));}
    else if(action==='next'){selection=prepare(ids[position+1],'lab',pathKey);focus=0;}
    else if(action==='finish'){const end=await ui.menu('You reached the end of this path',[{label:'Save my place and exit',value:'exit'},{label:'Stay with this exercise',value:'stay'}],{context:['Your work is saved in '+selection.relative+'.','Keep your seven-day plan and choose one opportunity to try. This is a place to stop, not a grade.']});if(end==='exit'||ui.closed)return;}
+   else if(action==='browse'){const id=await chooseLab(pathKey);if(id)selection=prepare(id,'lab',pathKey);}
    else if(action==='more'){
     const extra=await ui.menu('More options',[{label:'Get a hint',value:'hint'},{label:'Show a worked example (reveals the approach)',value:'example'},{label:'Homework or extension',value:'part'},{label:'Browse exercises',value:'browse'},{label:'Change learning path',value:'path'}],{context:[selection.labData.title]});
     if(extra==='hint'||extra==='example')await ui.read(extra==='hint'?'A hint':'Worked example',w.read(selection.lab,extra==='hint'?'HINTS.md':'EXAMPLE.md'));

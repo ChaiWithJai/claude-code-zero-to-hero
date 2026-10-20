@@ -16,7 +16,7 @@ node go --path live --lab 03
 
 ## I want homework or an extension
 
-Choose **More options → Homework or extension**. You can also jump directly:
+Press **? → Homework or extension** (or choose More options in plain mode). You can also jump directly:
 
 ```sh
 node go --path signature --lab 03 --part homework
