@@ -42,7 +42,7 @@ function createWorkshop(root) {
       safe(path.relative(root, dst));
       if (entry.isDirectory()) copyMissing(src, dst);
       else {
-        try { fs.copyFileSync(src, dst, fs.constants.COPYFILE_EXCL); }
+        try { fs.writeFileSync(dst, fs.readFileSync(src), { flag: 'wx' }); }
         catch (error) { if (error.code !== 'EEXIST') throw error; }
       }
     }
@@ -65,8 +65,9 @@ function createWorkshop(root) {
     const file = safe('.local/progress.json');
     fs.writeFileSync(file, JSON.stringify(selection, null, 2) + '\n');
   }
-  function prepare(id, part = 'lab', pathKey = 'live') {
+  function prepare(id, part = 'lab', pathKey = 'live', agent = 'claude') {
     const lab = labById(id); route(pathKey);
+    if (!['claude','codex'].includes(agent)) throw new Error('Choose claude or codex.');
     if (!PARTS.includes(part)) throw new Error('Choose lab, homework, or extension.');
     const source = path.join(root, 'labs', lab.slug, part);
     const relative = path.join('my-work', lab.slug, part);
@@ -74,6 +75,11 @@ function createWorkshop(root) {
     copyMissing(source, dir);
     copyMissing(path.join(root, 'labs', lab.slug, 'inputs'), path.join(dir, 'inputs'));
     ensureDir(path.join(relative, 'outputs'));
+    if (agent === 'codex') {
+      const instructions = safe(path.join(relative, 'AGENTS.md'));
+      try { fs.writeFileSync(instructions, fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8'), {flag:'wx'}); }
+      catch (error) { if (error.code !== 'EEXIST') throw error; }
+    }
     const selection = { path: pathKey, lab: lab.id, part };
     save(selection);
     return { ...selection, labData: lab, dir, relative };
@@ -98,19 +104,22 @@ function createWorkshop(root) {
       return { ok: false, messages: ['Keep your attempt and evidence in outputs/NOTES.md (at least a few specific sentences).'] };
     return { ok: true, messages: ['Your notes are present. This checks the file, not the quality of your reasoning.', ...lab.review.map(x => 'Review: ' + x)] };
   }
-  function launchClaude(dir) {
+  function launchAgent(dir, agent = 'claude', run = cp.spawnSync) {
+    if (!['claude','codex'].includes(agent)) throw new Error('Choose claude or codex.');
+    const label = agent === 'codex' ? 'Codex' : 'Claude Code';
     safe(path.relative(root, dir));
     // No shell interpolation: task text and account information are never passed as command strings.
     const options = { cwd: dir, stdio: 'inherit' };
     let result;
     if (process.platform === 'win32') {
       // Windows npm/native installers may expose a .cmd shim. Its fixed filename is the only shell command.
-      result = cp.spawnSync('cmd.exe', ['/d', '/s', '/c', 'claude'], options);
-    } else result = cp.spawnSync('claude', [], options);
-    if (result.error || result.status !== 0) return 'Claude Code did not start or exited with an error. Your work is saved. Use SETUP.md or continue with the supplied examples.';
-    return 'Back from Claude Code. Inspect your outputs before continuing.';
+      result = run('cmd.exe', ['/d', '/s', '/c', agent], options);
+    } else result = run(agent, [], options);
+    if (result.error || result.status !== 0) return label + ' did not start or exited with an error. Your work is saved. Use SETUP.md or continue with the supplied examples.';
+    return 'Back from ' + label + '. Inspect your outputs before continuing.';
   }
-  return { data, root, labById, route, state, save, prepare, read, check, launchClaude, safe };
+  function launchClaude(dir) { return launchAgent(dir); }
+  return { data, root, labById, route, state, save, prepare, read, check, launchClaude, launchAgent, safe };
 }
 // RFC-style quoted cells, CRLF, and quoted newlines; errors are reported as recovery instructions.
 function parseCSV(text) {

@@ -49,3 +49,9 @@ Optional readiness check:
 ```sh
 node go --doctor
 ```
+
+## Practice with Codex
+
+Use `node go --agent codex` to use the same lab menu with Codex. For a direct jump: `node go --agent codex --lab 03 --start`. Include `--agent codex` when you return; the default remains Claude Code. Check installation with `node go --agent codex --doctor`.
+
+The launcher copies the lab coaching instructions into `AGENTS.md` for Codex and keeps any existing file. Review these instructions before starting. They guide the assistant; they do not restrict its operating-system permissions. Choose permissions in your agent and inspect its proposed actions. A version check only confirms the command runs; it does not verify sign-in or account access.

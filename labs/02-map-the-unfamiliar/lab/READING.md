@@ -13,3 +13,5 @@ Download and extract the learner kit. Find the practice-space folder in your fil
 Follow the official quickstart for your operating system and approved account access. Confirm that Claude Code opens in the practice-space folder. Use the documented help interface to inspect available commands. Do not install a new terminal just to match the instructor; the default terminal is sufficient for this course.
 
 If installation or login is blocked, record the blocker in your binder and continue by inspecting the included example outputs. You can predict, verify claims, and revise a delegation brief without execution. Mark that evidence as observed or analyzed; return to the execution task after access is resolved.
+
+Official reference: https://code.claude.com/docs/en/overview (checked 2026-10-19). Start with Getting started and Quickstart. Use the documentation navigation to find installation or permission guidance when your interface differs; confirm details for your installed version.
