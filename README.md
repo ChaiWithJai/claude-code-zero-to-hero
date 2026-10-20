@@ -28,3 +28,7 @@ Your files live in `my-work/`. Switching labs, homework, or extensions keeps the
 The live workshop uses a shorter path through the same labs. The signature course includes the full sequence. You do not need to switch branches, copy a solution over your work, or learn Git to move around.
 
 [Browse the labs](labs/README.md) · [Get unstuck](HELP.md)
+
+## Today’s 20-minute cost exercise
+
+Run `node cost-lab serve` for a visual exercise on the cost of a finished job. It makes no model calls. [Open the exercise](labs/daily-cost/README.md).

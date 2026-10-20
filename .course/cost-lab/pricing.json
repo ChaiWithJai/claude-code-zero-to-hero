@@ -1,0 +1,13 @@
+{
+  "verified_on": "2026-10-20",
+  "currency": "USD",
+  "basis": "First-party standard global API list prices, dollars per million tokens; excludes taxes, discounts, tools, and third-party charges",
+  "sources": ["https://platform.claude.com/docs/en/about-claude/pricing", "https://claude.com/pricing", "https://code.claude.com/docs/en/costs", "https://code.claude.com/docs/en/monitoring-usage"],
+  "models": {
+    "claude-haiku-5-5": {"threshold":100000,"standard":{"input":0.1,"output":0.5,"write5m":0.125,"write1h":0.2,"read":0.01},"long":{"input":0.5,"output":2.5,"write5m":0.625,"write1h":1,"read":0.05}},
+    "claude-sonnet-5-5": {"standard":{"input":2,"output":10,"write5m":2.5,"write1h":4,"read":0.1}},
+    "claude-opus-5-5": {"standard":{"input":4,"output":20,"write5m":5,"write1h":8,"read":0.2}},
+    "claude-haiku-4-5": {"standard":{"input":1,"output":5,"write5m":1.25,"write1h":2,"read":0.1}}
+  },
+  "subscriptions": {"pro_monthly_usd":20,"pro_annual_total_usd":200,"max5_monthly_usd":100,"max20_monthly_usd":200,"max_note":"Max lists $100 or $200 monthly API credits; eligibility and terms apply. Credits and included subscription usage are different buckets."}
+}
