@@ -1,0 +1,10 @@
+SEVEN-DAY EXPERIMENT
+Opportunity 1 and trigger:
+Opportunity 2 and trigger:
+Opportunity 3 and trigger:
+Result I will inspect:
+Success measure:
+Stop rule:
+Approved fallback:
+Review point:
+What I have analyzed / executed / not yet tested:
