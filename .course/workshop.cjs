@@ -7,6 +7,8 @@ const PATHS = ['live', 'signature'];
 function createWorkshop(root) {
   root = fs.realpathSync(root);
   const data = JSON.parse(fs.readFileSync(path.join(root, '.course/catalog.json'), 'utf8'));
+  const readings = new Map();
+  let savedSelection;
   function labById(id) {
     const lab = data.labs.find(l => l.id === id || l.slug === id);
     if (!lab) throw new Error('Choose a lab number from the list.');
@@ -42,7 +44,11 @@ function createWorkshop(root) {
       safe(path.relative(root, dst));
       if (entry.isDirectory()) copyMissing(src, dst);
       else {
-        try { fs.writeFileSync(dst, fs.readFileSync(src), { flag: 'wx' }); }
+        try {
+          // Existing work needs no source read. Keep exclusive creation for races.
+          try { fs.lstatSync(dst); continue; } catch (e) { if (e.code !== 'ENOENT') throw e; }
+          fs.writeFileSync(dst, fs.readFileSync(src), { flag: 'wx' });
+        }
         catch (error) { if (error.code !== 'EEXIST') throw error; }
       }
     }
@@ -52,7 +58,9 @@ function createWorkshop(root) {
     try {
       const x = JSON.parse(fs.readFileSync(file, 'utf8'));
       if (!x || typeof x !== 'object' || !PATHS.includes(x.path) || !PARTS.includes(x.part) || !data.labs.some(l => l.id === x.lab)) return null;
-      return { path: x.path, lab: x.lab, part: x.part };
+      const selection = { path: x.path, lab: x.lab, part: x.part };
+      savedSelection = JSON.stringify(selection);
+      return selection;
     } catch (error) {
       if (error.code !== 'ENOENT' && !(error instanceof SyntaxError)) throw error;
       return null;
@@ -61,9 +69,12 @@ function createWorkshop(root) {
   function save(selection) {
     route(selection.path); labById(selection.lab);
     if (!PARTS.includes(selection.part)) throw new Error('Choose lab, homework, or extension.');
+    const key = JSON.stringify(selection);
+    if (key === savedSelection) return;
     ensureDir('.local');
     const file = safe('.local/progress.json');
     fs.writeFileSync(file, JSON.stringify(selection, null, 2) + '\n');
+    savedSelection = key;
   }
   function prepare(id, part = 'lab', pathKey = 'live', agent = 'claude') {
     const lab = labById(id); route(pathKey);
@@ -87,7 +98,16 @@ function createWorkshop(root) {
   function read(id, name = 'lab/INSTRUCTIONS.md') {
     const lab = labById(id);
     if (!['lab/INSTRUCTIONS.md','homework/INSTRUCTIONS.md','extension/INSTRUCTIONS.md','HINTS.md','EXAMPLE.md'].includes(name)) throw new Error('Unknown reading.');
-    return fs.readFileSync(path.join(root, 'labs', lab.slug, name), 'utf8');
+    const file = path.join(root, 'labs', lab.slug, name);
+    if (!readings.has(file)) readings.set(file, fs.readFileSync(file, 'utf8'));
+    return readings.get(file);
+  }
+  async function readAsync(id, name = 'lab/INSTRUCTIONS.md') {
+    const lab = labById(id);
+    if (!['lab/INSTRUCTIONS.md','homework/INSTRUCTIONS.md','extension/INSTRUCTIONS.md','HINTS.md','EXAMPLE.md'].includes(name)) throw new Error('Unknown reading.');
+    const file = path.join(root, 'labs', lab.slug, name);
+    if (!readings.has(file)) readings.set(file, await fs.promises.readFile(file, 'utf8'));
+    return readings.get(file);
   }
   function check(id, part = 'lab') {
     const lab = labById(id);
@@ -119,7 +139,7 @@ function createWorkshop(root) {
     return 'Back from ' + label + '. Inspect your outputs before continuing.';
   }
   function launchClaude(dir) { return launchAgent(dir); }
-  return { data, root, labById, route, state, save, prepare, read, check, launchClaude, launchAgent, safe };
+  return { data, root, labById, route, state, save, prepare, read, readAsync, check, launchClaude, launchAgent, safe };
 }
 // RFC-style quoted cells, CRLF, and quoted newlines; errors are reported as recovery instructions.
 function parseCSV(text) {

@@ -1,6 +1,6 @@
 'use strict';
 const readline=require('node:readline');
-const {lessonFrame,width:cellWidth,graphemes}=require('./workspace.cjs');
+const {lessonFrame,createDocumentLayout,width:cellWidth,graphemes}=require('./workspace.cjs');
 // Navigation is independent of course state. No terminal output marks work complete.
 function plainText(text){return String(text).replace(/\x1b\[[0-?]*[ -/]*[@-~]/g,'').replace(/\x1b/g,'').replace(/[\x00-\x08\x0b-\x1f\x7f]/g,'').replace(/^#{1,6}\s+/gm,'').replace(/^```[^\n]*\n?/gm,'').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'$1 ($2)').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1');}
 function wrap(text,width=76){
@@ -9,7 +9,7 @@ function wrap(text,width=76){
   if(!line.trim()){out.push('');continue;}
   const indent=/^\s*(?:[-*]|\d+\.)\s/.test(line)?'   ':'';let rest=line;
   while(cellWidth(rest)>width){
-   let prefix='';for(const g of graphemes(rest)){if(cellWidth(prefix+g)>width)break;prefix+=g;}
+   let prefix='',used=0;for(const g of graphemes(rest)){const cells=cellWidth(g);if(used+cells>width)break;prefix+=g;used+=cells;}
    const space=prefix.lastIndexOf(' '),at=space>0&&cellWidth(prefix.slice(0,space))>width/3?space:prefix.length;
    out.push(rest.slice(0,at));rest=indent+rest.slice(at).trimStart();
   }
@@ -39,9 +39,9 @@ function createTerminal({input=process.stdin,output=process.stdout,plain=false}=
  function dispatch(str,key={}){if(key.name==='paste-start'){pasting=true;pasteText='';return;}if(key.name==='paste-end'){pasting=false;const text=pasteText;pasteText='';dispatch('',{name:'paste',text});return;}if(pasting){pasteText+=(str||'');return;}if(activeKey)activeKey(str,key);else keyQueue.push([str,key]);}
  function waitKey(draw,onKey){return new Promise(resolve=>{
   let finished=false;
-  const done=v=>{if(finished)return;finished=true;activeKey=null;output.off('resize',resize);pending=null;resolve(v);};
+  const done=v=>{if(finished)return;finished=true;clearTimeout(resizeTimer);activeKey=null;output.off('resize',resize);pending=null;resolve(v);};
   const key=(str,k={})=>{if(k.ctrl&&['c','d'].includes(k.name)){closed=true;done(null);return;}onKey(str,k,done);};
-  const resize=()=>draw();pending=()=>done(null);activeKey=key;output.on('resize',resize);draw();
+  let resizeTimer;const resize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(draw,25);};pending=()=>done(null);activeKey=key;output.on('resize',resize);draw();
   queueMicrotask(()=>{while(activeKey&&keyQueue.length){const [str,k]=keyQueue.shift();dispatch(str,k);}});
  });}
 
@@ -53,11 +53,12 @@ function createTerminal({input=process.stdin,output=process.stdout,plain=false}=
  async function read(title,text){
   if(closed)return;
   if(!rich){output.write('\n'+plainText(title)+'\n\n'+wrap(text,size().width).join('\n')+'\n');return;}
-  enter();let top=0;const draw=()=>{const {width,height}=size(),lines=wrap(text,width),page=Math.max(1,height-5);top=Math.max(0,Math.min(top,Math.max(0,lines.length-page)));frame([bold(title),'',...lines.slice(top,top+page),'',accent((width<60?'↑↓/Space · Esc/q return · ':'↑/↓ scroll · Space next · Esc/q return · ')+Math.min(top+page,lines.length)+'/'+lines.length)]);};await waitKey(draw,(str,k,done)=>{const page=Math.max(1,size().height-5);if(k.name==='escape'||k.name==='return'||str==='b')done();else if(k.name==='down'){top++;draw()}else if(k.name==='up'){top--;draw()}else if(k.name==='pagedown'||str===' '){top+=page;draw()}else if(k.name==='pageup'){top-=page;draw()}else if(k.name==='home'){top=0;draw()}else if(k.name==='end'){top=Number.MAX_SAFE_INTEGER;draw()}else if(str==='q')done()});
+  enter();let top=0,cachedWidth,cachedLines;const draw=()=>{const {width,height}=size();if(width!==cachedWidth){cachedWidth=width;cachedLines=wrap(text,width);}const lines=cachedLines,page=Math.max(1,height-5);top=Math.max(0,Math.min(top,Math.max(0,lines.length-page)));frame([bold(title),'',...lines.slice(top,top+page),'',accent((width<60?'↑↓/Space · Esc/q return · ':'↑/↓ scroll · Space next · Esc/q return · ')+Math.min(top+page,lines.length)+'/'+lines.length)]);};await waitKey(draw,(str,k,done)=>{const page=Math.max(1,size().height-5);if(k.name==='escape'||k.name==='return'||str==='b')done();else if(k.name==='down'){top++;draw()}else if(k.name==='up'){top--;draw()}else if(k.name==='pagedown'||str===' '){top+=page;draw()}else if(k.name==='pageup'){top-=page;draw()}else if(k.name==='home'){top=0;draw()}else if(k.name==='end'){top=Number.MAX_SAFE_INTEGER;draw()}else if(str==='q')done()});
  }
  async function exercise(model){
   enter();const id=model.id;let place=positions.get(id)||{top:0},top=place.top,last;
-  const draw=()=>{last=lessonFrame(model,{columns:output.columns||80,rows:output.rows||24},{dim,bold,accent},wrap,top,place.columns&&place.columns!==output.columns?place.sourceLine:null);top=last.top;place={top,sourceLine:last.sourceLine,columns:output.columns};positions.set(id,place);frame(last.lines);};
+  const layout=createDocumentLayout();
+  const draw=()=>{last=lessonFrame(model,{columns:output.columns||80,rows:output.rows||24},{dim,bold,accent},wrap,top,place.columns&&place.columns!==output.columns?place.sourceLine:null,layout);top=last.top;place={top,sourceLine:last.sourceLine,columns:output.columns};positions.set(id,place);frame(last.lines);};
   return waitKey(draw,(str,k,done)=>{
    if(k.name==='paste'){model.notice='Paste task text into '+model.agentLabel+', not the course controls.';draw();}
    else if(k.name==='down'){top++;draw()}else if(k.name==='up'){top--;draw()}

@@ -12,10 +12,11 @@ function width(text) {
 }
 function clip(text, columns) {
   if (width(text) <= columns) return text;
-  let out = '';
+  let out = '', used = 0;
   for (const {segment} of segmenter.segment(String(text))) {
-    if (width(out + segment) > columns - 1) break;
-    out += segment;
+    const cells = width(segment);
+    if (used + cells > columns - 1) break;
+    out += segment; used += cells;
   }
   return out + '…';
 }
@@ -35,11 +36,21 @@ function documentLines(raw, columns, wrap) {
   while (lines[0]?.text === '') lines.shift();
   return lines;
 }
-function lessonFrame(model, {columns, rows}, style, wrap, requestedTop = 0, anchor = null) {
+function createDocumentLayout() {
+  let cachedText, cachedWidth, cachedDocument;
+  return (text, columns, wrap) => {
+    if (text !== cachedText || columns !== cachedWidth) {
+      cachedDocument = documentLines(text, columns, wrap);
+      cachedText = text; cachedWidth = columns;
+    }
+    return cachedDocument;
+  };
+}
+function lessonFrame(model, {columns, rows}, style, wrap, requestedTop = 0, anchor = null, layout = null) {
   const w = Math.max(18, columns - 4), h = Math.max(5, rows - 2);
   if (columns < 40 || rows < 14) return {lines: ['Course workspace', '', clip('Enlarge this window or use node go --plain.', w), '', 'q quit'], top: 0, page: 1};
   const wide = columns >= 112, rail = wide ? 27 : 0, contentWidth = Math.min(86, w - rail);
-  const document = documentLines(model.text, contentWidth, wrap);
+  const document = layout ? layout(model.text, contentWidth, wrap) : documentLines(model.text, contentWidth, wrap);
   const title = wrap(model.title, contentWidth);
   const header = [style.dim('CLAUDE CODE ZERO TO HERO'), style.dim(clip(model.pathLabel + '  /  ' + model.position + ' of ' + model.total + '  /  ' + model.part,contentWidth)), ...title.map(style.bold), ''];
   const footerCount = 5;
@@ -60,4 +71,4 @@ function lessonFrame(model, {columns, rows}, style, wrap, requestedTop = 0, anch
   return {lines, top, page, sourceLine:document[top]?.sourceLine};
 }
 function graphemes(text) { return [...segmenter.segment(text)].map(s => s.segment); }
-module.exports = {width, clip, fill, documentLines, lessonFrame, graphemes};
+module.exports = {createDocumentLayout, width, clip, fill, documentLines, lessonFrame, graphemes};

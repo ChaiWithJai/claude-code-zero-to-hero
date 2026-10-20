@@ -10,3 +10,13 @@ const model={title:'Direct your first sidekick',pathLabel:'Live workshop',positi
 test('exercise instructions are visible immediately and controls stay in place while scrolling',()=>{const top=lessonFrame(model,{columns:80,rows:24},identity,wrap,0),next=lessonFrame(model,{columns:80,rows:24},identity,wrap,8);assert.ok(top.lines.some(l=>l.includes('Try it')));assert.deepEqual(top.lines.slice(-5,-1),next.lines.slice(-5,-1));assert.ok(next.top>top.top);assert.ok(top.lines.some(l=>l.includes('Enter  Work with Claude')));});
 test('task layout fits small, normal and wide viewports in display cells',()=>{for(const [columns,rows]of [[40,16],[44,16],[80,24],[120,32]]){const f=lessonFrame(model,{columns,rows},identity,wrap);assert.ok(f.lines.length<=rows);assert.ok(f.lines.every(l=>width(l)<=columns));assert.ok(f.lines.some(l=>l.includes('q Quit')));}assert.ok(lessonFrame(model,{columns:120,rows:32},identity,wrap).lines.some(l=>l.includes('EXERCISES')));});
 test('prompt content and Unicode graphemes survive reading layout',()=>{assert.equal(width('界'),2);assert.equal(width('👩‍💻'),2);const text='界'.repeat(30);assert.equal(wrap(text,20).join(''),text);assert.ok(wrap(text,20).every(l=>width(l)<=20));assert.ok(documentLines(model.text,76,wrap).some(l=>l.kind==='code'&&l.text.includes('Preserve missing delivery as unknown.')));});
+
+test('scrolling reuses layout; resizing and changed content invalidate it',()=>{
+ const {createDocumentLayout}=require('../workspace.cjs');const layout=createDocumentLayout();let calls=0;const measured=(...a)=>{calls++;return wrap(...a)};
+ const a=lessonFrame(model,{columns:80,rows:24},identity,measured,0,null,layout);const first=calls;
+ const b=lessonFrame(model,{columns:80,rows:24},identity,measured,8,null,layout);
+ assert.equal(calls-first,1); // Only the short title is wrapped again.
+ assert.ok(b.top>a.top);
+ lessonFrame(model,{columns:44,rows:24},identity,measured,0,null,layout);assert.ok(calls>first+2);
+ const old=layout(model.text,40,wrap);assert.notEqual(layout(model.text+'\nNew content',40,wrap),old);
+});
