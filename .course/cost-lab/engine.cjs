@@ -14,7 +14,7 @@ function summarize(trace){
  const human=trace.human||{};const minutes=nonnegative(human.active_minutes??0,'active minutes');const hourly=nonnegative(human.hourly_value_usd??0,'hourly value');const tools=trace.tool_charges_usd==null?null:nonnegative(trace.tool_charges_usd,'tool charges');
  return {job:trace.job,evidence:trace.evidence,accepted:trace.accepted===true,requests,request_count:requests.length,unpriced_requests:unknown.length,known_api_equivalent_usd:known,api_equivalent_usd:unknown.length?null:known,tool_charges_usd:tools,human_minutes:minutes,human_value_usd:minutes/60*hourly,estimated_job_value_cost_usd:unknown.length||tools===null?null:known+tools+minutes/60*hourly,billed_cash_usd:null,notes:['API-equivalent list-price estimate is not an invoice.','Do not add API-equivalent usage to a subscription fee for included usage.','Human time value is a planning assumption; waiting time is not active work.','Acceptance requires checking the promised output, not just a successful response.']};
 }
-function fixture(){return {job:'Turn three teaching notes into a checked learner handout',evidence:'SIMULATED teaching fixture, not measured account usage',accepted:true,tool_charges_usd:0,human:{active_minutes:8,hourly_value_usd:60},requests:[{id:'draft',stage:'Draft',model:'claude-haiku-5-5',input:20000,output:2500,write5m:10000,read:0},{id:'review',stage:'Check',model:'claude-haiku-5-5',input:3000,output:1200,read:30000},{id:'repair',stage:'Repair',model:'claude-haiku-5-5',input:2500,output:1000,read:30000}]};}
+function fixture(){return {job:'Prototype and check a revenue-pilot analysis',evidence:'SIMULATED teaching fixture, not measured account usage',accepted:true,tool_charges_usd:0,human:{active_minutes:8,hourly_value_usd:60},requests:[{id:'draft',stage:'Draft',model:'claude-haiku-5-5',input:20000,output:2500,write5m:10000,read:0},{id:'review',stage:'Check',model:'claude-haiku-5-5',input:3000,output:1200,read:30000},{id:'repair',stage:'Repair',model:'claude-haiku-5-5',input:2500,output:1000,read:30000}]};}
 // Last usage snapshot for a stable message id wins. Multiple content blocks can repeat usage.
 function importStream(text,job){
  const records=new Map();let malformed=0,result=false;
@@ -27,3 +27,16 @@ function importStream(text,job){
  return {job,evidence:'OBSERVED token metadata from supplied stream-json; prompts and tool contents excluded',accepted:false,tool_charges_usd:null,human:{active_minutes:0,hourly_value_usd:0},requests:[...records.values()],capture:{result_event_present:result,malformed_lines:malformed,completeness:'Partial stream coverage possible. Background calls, other sessions and provider adjustments may be absent.'}};
 }
 if(typeof module==='object')module.exports={pricing,requestCost,summarize,fixture,importStream};else globalThis.CostEngine={pricing,requestCost,summarize,fixture,importStream};
+
+function businessCase(c){
+ const keys=['opportunities','baseline_rate','pilot_rate','sale_usd','margin_rate','api_plan_usd','other_tools_usd','paid_review_usd','operations_usd','setup_usd','before_hours','after_hours','hourly_value_usd','verified_cash_reduction_usd'];
+ for(const k of keys)nonnegative(c[k]??0,k);
+ for(const k of ['baseline_rate','pilot_rate','margin_rate'])if(c[k]>1)throw Error(k+' must be between 0 and 1');
+ const added_sales=c.opportunities*(c.pilot_rate-c.baseline_rate),added_revenue=added_sales*c.sale_usd,contribution=added_revenue*c.margin_rate;
+ const run_cost=c.api_plan_usd+c.other_tools_usd+c.paid_review_usd+c.operations_usd;
+ const released_hours=c.before_hours-c.after_hours,capacity_value=released_hours*c.hourly_value_usd;
+ const incremental=c.mode==='revenue'?contribution:c.verified_cash_reduction_usd;
+ const net=incremental-run_cost;
+ return {added_sales,added_revenue_usd:added_revenue,incremental_contribution_usd:contribution,recurring_run_cost_usd:run_cost,one_time_setup_usd:c.setup_usd,net_recurring_usd:net,simple_setup_payback_months:net>0?c.setup_usd/net:null,released_hours,capacity_value_usd:capacity_value,verified_cash_reduction_usd:c.verified_cash_reduction_usd,evidence:'Hypothetical scenario. Validate lift, quality, delivery capacity and cash realization in a pilot. Capacity value is separate from realized cash savings.'};
+}
+if(typeof module==='object')module.exports.businessCase=businessCase;else globalThis.CostEngine.businessCase=businessCase;
