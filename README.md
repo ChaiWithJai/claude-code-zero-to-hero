@@ -33,4 +33,4 @@ The live workshop uses a shorter path through the same labs. The signature cours
 
 Run `node cost-lab serve` for a visual masterclass on revenue opportunities, operating costs and the work behind AI. It makes no model calls. [Open the exercise](labs/daily-cost/README.md).
 
-To watch a Claude Code job happen, follow [the live observability exercise](labs/daily-cost/LIVE.md). Start with `node cost-lab live`, then open Haiku in a second terminal with `node cost-lab claude`. The viewer includes a labeled rehearsal that makes no model calls.
+To watch a Claude Code job happen, follow [the live observability exercise](labs/daily-cost/LIVE.md). Start with `node cost-lab live`, then open Haiku in a second terminal with `node cost-lab claude`. Use `node cost-lab live --demo` for a labeled example that makes no model calls.
