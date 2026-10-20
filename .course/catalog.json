@@ -40,7 +40,8 @@
         "Can you explain why it matters and what remains your judgment?"
       ],
       "minutes": 12,
-      "layer": 0
+      "layer": 0,
+      "navTitle": "Your wish"
     },
     {
       "id": "02",
@@ -51,7 +52,8 @@
         "Did you distinguish organizing work from enforcing access?"
       ],
       "minutes": 12,
-      "layer": 1
+      "layer": 1,
+      "navTitle": "Map the unfamiliar"
     },
     {
       "id": "03",
@@ -63,7 +65,8 @@
         "Is Cedar delivery still unknown?"
       ],
       "minutes": 20,
-      "layer": 2
+      "layer": 2,
+      "navTitle": "Your first sidekick"
     },
     {
       "id": "04",
@@ -74,7 +77,8 @@
         "Did you repair Harbor eligibility instead of averaging away the constraint error?"
       ],
       "minutes": 15,
-      "layer": 2
+      "layer": 2,
+      "navTitle": "Check and repair"
     },
     {
       "id": "05",
@@ -86,7 +90,8 @@
         "Can you point to evidence that your revision helped?"
       ],
       "minutes": 25,
-      "layer": 3
+      "layer": 3,
+      "navTitle": "Teach your method"
     },
     {
       "id": "06",
@@ -97,7 +102,8 @@
         "Can you explain a mismatch without treating every different click as failure?"
       ],
       "minutes": 10,
-      "layer": 4
+      "layer": 4,
+      "navTitle": "Follow the loop"
     },
     {
       "id": "07",
@@ -109,7 +115,8 @@
         "Did you distinguish asynchronous from concurrent work?"
       ],
       "minutes": 15,
-      "layer": 4
+      "layer": 4,
+      "navTitle": "Work in parallel"
     },
     {
       "id": "08",
@@ -121,7 +128,8 @@
         "Can useful work continue with a local file?"
       ],
       "minutes": 15,
-      "layer": 4
+      "layer": 4,
+      "navTitle": "Add a connection"
     },
     {
       "id": "09",
@@ -133,7 +141,8 @@
         "Did observation lead to a specific model revision?"
       ],
       "minutes": 20,
-      "layer": 5
+      "layer": 5,
+      "navTitle": "Apply your model"
     },
     {
       "id": "10",
@@ -145,7 +154,8 @@
         "Did you keep analyzed and executed evidence separate?"
       ],
       "minutes": 15,
-      "layer": 5
+      "layer": 5,
+      "navTitle": "Your next seven days"
     }
   ]
 }

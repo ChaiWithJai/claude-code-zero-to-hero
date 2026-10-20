@@ -36,7 +36,7 @@ node go
 
 Follow the current [official quickstart](https://code.claude.com/docs/en/quickstart) using approved access. Having used Claude chat does not by itself establish Claude Code access.
 
-The launcher offers **Start Claude Code in this workspace** after you choose a lab. It does not install the tool, connect accounts, or change permissions for you.
+The launcher offers **Work with Claude Code** after you choose a lab. It does not install the tool, connect accounts, or change permissions for you.
 
 ## If setup is blocked
 
@@ -49,3 +49,17 @@ Optional readiness check:
 ```sh
 node go --doctor
 ```
+
+## Practice with Codex
+
+Use `node go --agent codex` to use the same lab menu with Codex. For a direct jump: `node go --agent codex --lab 03 --start`. Include `--agent codex` when you return; the default remains Claude Code. Check installation with `node go --agent codex --doctor`.
+
+The launcher copies the lab coaching instructions into `AGENTS.md` for Codex and keeps any existing file. Review these instructions before starting. They guide the assistant; they do not restrict its operating-system permissions. Choose permissions in your agent and inspect its proposed actions. A version check only confirms the command runs; it does not verify sign-in or account access.
+
+## Terminal navigation
+
+The launcher opens your saved exercise directly. Its instructions are already visible. Use ↑/↓ or Space to read. The controls stay at the bottom: Enter opens the agent, c checks your work, n continues, l previews exercises, ? opens help, and q quits.
+
+The exercise picker lets you type a name and preview the task before opening it. Esc returns without changing your place. Returning from the agent, a hint or a check restores your reading position.
+
+Use `node go --plain` for numbered prompts without alternate-screen controls, including when using a screen reader. `NO_COLOR=1` suppresses color. Screen reader behavior varies by terminal. No additional packages or terminal app are required.

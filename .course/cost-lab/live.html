@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Claude Code cost</title>
+<style>
+:root{color-scheme:dark;--paper:#f7f4ee;--gold:#d7b775;--muted:#b9c0ca;--line:#424852}*{box-sizing:border-box}body{margin:0;background:#1a1d23;color:var(--paper);font:20px/1.5 Arial,sans-serif}main{max-width:1000px;margin:auto;padding:54px 48px}header{display:flex;justify-content:space-between;align-items:baseline;gap:24px}h1{font:32px Georgia,serif;margin:0}#status{font-size:16px;color:var(--muted);text-align:right}#label{margin:65px 0 0;color:var(--muted)}#total{font:clamp(64px,9vw,112px)/1.2 Georgia,serif;font-variant-numeric:tabular-nums;color:var(--gold);margin:10px 0 14px;letter-spacing:-3px}#context{color:var(--muted);margin:0 0 48px}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{padding:15px 0;border-bottom:1px solid var(--line);text-align:left}th{font-weight:normal;color:var(--muted);font-size:17px}td:last-child,th:last-child{text-align:right}tfoot td{border:0;padding-top:22px}footer{color:var(--muted);font-size:16px;margin-top:45px;max-width:720px}#warning{color:var(--gold)}@media(max-width:600px){main{padding:28px 22px}header{display:block}#status{text-align:left;margin-top:12px}#label{margin-top:45px}#total{letter-spacing:-2px}#context{margin-bottom:30px}}
+</style>
+<main>
+<header><h1>Claude Code cost</h1><span id="status" role="status">Connecting…</span></header>
+<p id="label">Estimated model usage this session</p>
+<div id="total">—</div>
+<p id="context">Waiting for the first request.</p>
+<table aria-label="Request costs"><thead><tr><th scope="col">Request</th><th scope="col">Estimated cost</th></tr></thead><tbody id="requests"></tbody><tfoot><tr><td>Total</td><td id="sum">—</td></tr></tfoot></table>
+<footer>On a subscription, this usage estimate is not automatically an extra charge. Human time and other operating costs are separate.<p id="warning" hidden></p></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),money=n=>n===null?'Unknown':'$'+n.toFixed(6);let last='';
+function render(d){const rehearsal=d.mode==='rehearsal',n=d.requests.length;let status=rehearsal?'Rehearsal · simulated costs':d.mode==='live'?'Connected':'Waiting for Claude Code';$('status').textContent=status;$('label').textContent=rehearsal?'Estimated model usage in this example':'Estimated model usage this session';$('total').textContent=n?money(d.estimatedUsage):'—';$('sum').textContent=n?money(d.estimatedUsage):'—';$('context').textContent=n?n+' request'+(n===1?'':'s'):'Waiting for the first request.';const key=JSON.stringify(d.requests.map(r=>[r.id,r.cost]));if(key!==last){last=key;$('requests').replaceChildren();d.requests.forEach((r,i)=>{const tr=document.createElement('tr');for(const v of ['Request '+(i+1),money(r.cost)]){const td=document.createElement('td');td.textContent=v;tr.append(td)}$('requests').append(tr)});}const warnings=[];if(d.unpriced)warnings.push('Some request costs are unknown.');if(d.droppedRecords)warnings.push('Older records were discarded; this total covers the retained requests only.');$('warning').hidden=!warnings.length;$('warning').textContent=warnings.join(' ');}
+async function refresh(){try{const r=await fetch('/live/data');if(!r.ok)throw Error();render(await r.json())}catch(e){$('status').textContent='Disconnected · showing last received costs'}setTimeout(refresh,1000)}refresh();
+</script>
+</html>

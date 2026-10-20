@@ -8,7 +8,8 @@ const {spawnSync}=require('node:child_process');
 const {createWorkshop,checkComparison,parseCSV}=require('../workshop.cjs');
 const {parseArgs}=require('../launcher.cjs');
 const root=path.resolve(__dirname,'../..');
-function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'gravity-test-'));fs.cpSync(root,dir,{recursive:true,filter:p=>!['my-work','.local','.git','node_modules'].includes(path.relative(root,p).split(path.sep)[0])});t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return createWorkshop(dir);}
+function copyFixture(from,to){fs.mkdirSync(to,{recursive:true});for(const e of fs.readdirSync(from,{withFileTypes:true})){if(['my-work','.local','.git','node_modules'].includes(e.name))continue;const a=path.join(from,e.name),b=path.join(to,e.name);if(e.isDirectory())copyFixture(a,b);else if(e.isFile())fs.writeFileSync(b,fs.readFileSync(a));}}
+function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'gravity-test-'));copyFixture(root,dir);t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return createWorkshop(dir);}
 const good='option,price_usd,width_cm,warranty_years,delivery_days,source_id,meets_width_limit,unknowns\nCedar,180,100,1,unknown,DESK-A,yes,delivery_days\nHarbor,240,120,3,7,DESK-B,no,none\nBirch,280,95,2,14,DESK-C,yes,none\n';
 test('all paths and activities resolve to their complete learner material',()=>{
  const w=createWorkshop(root);for(const p of ['live','signature'])for(const id of w.route(p).labs){const l=w.labById(id);for(const part of ['lab','homework','extension']){assert.ok(w.read(id,part+'/INSTRUCTIONS.md').length>100);assert.ok(fs.existsSync(path.join(root,'labs',l.slug,part,'CLAUDE.md')));assert.ok(fs.existsSync(path.join(root,'labs',l.slug,part,'READING.md')));}assert.ok(w.read(id,'HINTS.md'));assert.ok(w.read(id,'EXAMPLE.md'));}
@@ -34,3 +35,18 @@ test('CLI hint and example require explicit requests and do not prepare a worksp
 test('noninteractive execution gives a direct jump instead of hanging',t=>{const w=fixture(t);const r=spawnSync(process.execPath,['go'],{cwd:w.root,encoding:'utf8',timeout:5000});assert.equal(r.status,0);assert.ok(r.stdout.includes('--path live --lab 01'));});
 test('CLI rejects malformed flags without mutating work',t=>{const w=fixture(t);for(const args of [['--lab'],['--wat'],['--path','bad']]){const r=spawnSync(process.execPath,['go',...args],{cwd:w.root,encoding:'utf8'});assert.equal(r.status,1);}assert.ok(!fs.existsSync(path.join(w.root,'my-work')));});
 test('argument parsing keeps direct navigation explicit',()=>{assert.deepEqual(parseArgs(['--path','signature','--lab','05','--part','extension']),{path:'signature',lab:'05',part:'extension'});});
+
+test('Codex instructions preserve learner edits and reject unsupported agents',t=>{const w=fixture(t);const s=w.prepare('03','lab','signature','codex');const file=path.join(s.dir,'AGENTS.md');assert.equal(fs.readFileSync(file,'utf8'),fs.readFileSync(path.join(s.dir,'CLAUDE.md'),'utf8'));fs.writeFileSync(file,'My coaching edits');w.prepare('03','lab','signature','codex');assert.equal(fs.readFileSync(file,'utf8'),'My coaching edits');assert.throws(()=>w.prepare('03','lab','live','other'));});
+test('agent launch uses the chosen fixed binary and workspace without paid model calls',t=>{const w=fixture(t);const s=w.prepare('03');for(const agent of ['claude','codex']){let invocation;const result=w.launchAgent(s.dir,agent,(...args)=>{invocation=args;return {status:0};});assert.equal(invocation[2].cwd,s.dir);assert.equal(process.platform==='win32'?invocation[1][3]:invocation[0],agent);assert.match(result,/Inspect your outputs/);}assert.throws(()=>w.launchAgent(s.dir,'codex; bad'));assert.match(w.launchAgent(s.dir,'codex',()=>({status:1})),/work is saved/);});
+test('Codex CLI selection creates its coaching file without launching a model',t=>{const w=fixture(t);const r=spawnSync(process.execPath,['go','--agent','codex','--lab','03'],{cwd:w.root,encoding:'utf8'});assert.equal(r.status,0);assert.ok(fs.existsSync(path.join(w.root,'my-work',w.labById('03').slug,'lab/AGENTS.md')));assert.throws(()=>parseArgs(['--agent','unsupported']));});
+
+test('cached readings avoid repeat disk reads and async previews share the cache',async t=>{
+ const w=fixture(t),file=path.join(w.root,'labs',w.labById('03').slug,'lab/INSTRUCTIONS.md');
+ const text=await w.readAsync('03');fs.unlinkSync(file);assert.equal(w.read('03'),text);assert.equal(await w.readAsync('03'),text);
+ await assert.rejects(w.readAsync('03','../../private'),/Unknown reading/);
+});
+test('returning to an existing exercise does not read its source files again',t=>{
+ const w=fixture(t);w.prepare('03');const read=fs.readFileSync;
+ fs.readFileSync=function(file,...args){if(String(file).includes(path.sep+'labs'+path.sep))throw Error('unexpected source read');return read.call(this,file,...args)};
+ try{w.prepare('03');}finally{fs.readFileSync=read;}
+});

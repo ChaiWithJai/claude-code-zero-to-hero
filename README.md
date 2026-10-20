@@ -10,7 +10,11 @@ Open a terminal in this folder and run:
 node go
 ```
 
-Choose **Live workshop** or **Signature course**, then a lab. The launcher gives you one activity and a place for your work. Run it again to pick up where you left off.
+Choose **Live workshop** or **Signature course** on your first visit. After that, the launcher opens your current exercise directly. The instructions stay on screen while you work through them.
+
+Use ↑/↓ or Space to read, Enter to open your agent, c to check your work, and n to continue. Press l to preview another exercise or ? for hints, examples and other options. Wider windows show the course index alongside the task.
+
+Use `node go --plain` for numbered prompts without screen redraws. It also works with `--agent codex`.
 
 [Set up once](SETUP.md) if you need Node.js, Claude Code, or help opening this folder. No `npm install` is needed.
 
@@ -28,3 +32,9 @@ Your files live in `my-work/`. Switching labs, homework, or extensions keeps the
 The live workshop uses a shorter path through the same labs. The signature course includes the full sequence. You do not need to switch branches, copy a solution over your work, or learn Git to move around.
 
 [Browse the labs](labs/README.md) · [Get unstuck](HELP.md)
+
+## The business masterclass
+
+Run `node cost-lab serve` for a visual masterclass on revenue opportunities, operating costs and the work behind AI. It makes no model calls. [Open the exercise](labs/daily-cost/README.md).
+
+To watch a Claude Code job happen, follow [the live observability exercise](labs/daily-cost/LIVE.md). Start with `node cost-lab live`, then open Haiku in a second terminal with `node cost-lab claude`. Use `node cost-lab live --demo` for a labeled example that makes no model calls.
